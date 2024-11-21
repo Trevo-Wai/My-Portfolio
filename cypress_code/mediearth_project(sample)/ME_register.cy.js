@@ -13,8 +13,8 @@ describe('Register and Verify OTP with MailSlurp', () => {
     production: '',
   };
 
-  const referralCode = '3BDD4FBE';
-  const sponsorshipCode = '3BDD4FBE';
+  const referralCode = '0755C390';
+  const sponsorshipCode = '0755C390';
   const password = '12345678';
   const phoneNumber = '1234567889';
   const address = {
