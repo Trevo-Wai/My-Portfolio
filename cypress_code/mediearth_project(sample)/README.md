@@ -40,7 +40,7 @@ This test script performs user registration and OTP verification using Cypress. 
 
 ---
 
-## 2. `test_dashboard_load.js`
+## 2. `calculatePPEpoints.cy.js`
 This Cypress test script verifies the calculation of **Point Given** values against **PPE (Give)** values on the Mediearth UAT platform. It loops through table rows, validates calculations, and logs discrepancies.
 
 ---
