@@ -10,11 +10,11 @@ describe('Register and Verify OTP with MailSlurp', () => {
   const baseURLs = {
     testing:    'http://165.232.174.152:8075/web/login',
     uat:        'https://www.mediearthuat.blue-stone.net/web/login',
-    production: '',
+    production: 'https://mediearth.shop/web/login',
   };
 
-  const referralCode = '0755C390';
-  const sponsorshipCode = '0755C390';
+  const referralCode = '2D24ED42';
+  const sponsorshipCode = '2D24ED42';
   const password = '12345678';
   const phoneNumber = '1234567889';
   const address = {
@@ -24,6 +24,8 @@ describe('Register and Verify OTP with MailSlurp', () => {
     zip: '12112',
     state: 'Adana',
     country: 'Thailand',
+    rECountry: 'Thailand',
+    Nationality: 'Thailand',
   };
   const bankDetails = {
     bankName: 'kbank',
@@ -31,8 +33,10 @@ describe('Register and Verify OTP with MailSlurp', () => {
     bankOption: 'thai',
   };
   const dateOfBirth = '2000-06-15';
+  
 
-  it('Registers a new user and verifies OTP', () => {
+it('Registers a new user and verifies OTP', () => {
+
     // Create a new email inbox using MailSlurp
     cy.wrap(mailslurp.createInbox()).then((inbox) => {
       const emailAddress = inbox.emailAddress;
@@ -64,13 +68,17 @@ describe('Register and Verify OTP with MailSlurp', () => {
       cy.get('#confirm_password').type(password);
       cy.get('#check-agree').click();
 
+      //25% saving bonus
+      cy.get('select[name="is_saving"].form-control').select("No")
+
       // Fill in address details
       cy.get('[name="street"]').type(address.street1);
       cy.get('[name="street2"]').type(address.street2);
       cy.get('[name="city"]').type(address.city);
       cy.get('[name="zip_code"]').type(address.zip);
       cy.get('[name="state_id"]').select(address.state);
-      cy.get('[name="country_id"]').select(address.country);
+      cy.get('[name="country_id"]').select(address.rECountry);
+      cy.get('[name="resident_country_id"]').select(address.Nationality);
 
       // Fill in DOB and email
       cy.get('[name="date_of_birth"]').type(dateOfBirth);
@@ -80,42 +88,43 @@ describe('Register and Verify OTP with MailSlurp', () => {
       cy.get('select[name="bank_options"]').select(bankDetails.bankOption);
       cy.get('#bank_name').type(bankDetails.bankName);
       cy.get('#bank_acc_no').type(bankDetails.accountNumber);
-
-      // Agree of personal information
-      Cypress.Commands.add('clickAgree1', () =>{
-      cy.get(':nth-child(12) > .col-md-12 > .btn-sm').click();
-      cy.get('.modal-body > .mb-3 > .row > .col-md-12 > input').click();
-      cy.get('#confirmButton').should('be.visible').click();
-      });
-      cy.clickAgree1();
+      cy.get('#company_register_number').type("123123123");
 
 
-      // Agree of Service Terms and Conditions
-      cy.get('button.btn-sm.privacy').click();
-      cy.get(':nth-child(2) > .row > .col-md-12 > input').as('checkbox');
-      cy.get('@checkbox').click();
-      cy.get('#confirmButton').should('be.visible').click();
+     // Agree of personal information
+     cy.get('button.btn-sm.terms').click({ force: true });
+     cy.get('.modal-body > .mb-3 > .row > .col-md-12 > input').click();
+     cy.get('#confirmButton').should('be.visible').click();
 
 
-      // Submit the form
-      cy.get('.text-center > button.btn').should('be.visible').click();
+    // Agree of Service Terms and Conditions
+    cy.get('button.btn-sm.privacy').click({ force: true });
+    cy.get(':nth-child(2) > .row > .col-md-12 > input').as('checkbox');
+    cy.get('@checkbox').click();
+    cy.get('#confirmButton').should('be.visible').click();
 
-      // Wait for OTP email
-      cy.wrap(mailslurp.waitForLatestEmail(inboxId, 10000)).then((email) => {
+
+    // Submit the form
+    cy.get('.text-center > button.btn').should('be.visible').click();
+
+    // Wait for OTP email
+    cy.wrap(mailslurp.waitForLatestEmail(inboxId, 10000)).then((email) => {
         const otpMatch = /Your OTP is: (\d{6})/.exec(email.body);
         if (otpMatch) {
           const otp = otpMatch[1];
           cy.log('Received OTP:', otp);
 
-          // Enter OTP and verify
-          cy.get('#otp').type(otp);
-          cy.get('#verify_btn').click();
-        } else {
-          throw new Error('OTP not found in email body');
+    // Enter OTP and verify
+        cy.get('#otp').type(otp);
+        cy.get('#verify_btn').click();
+        } 
+        else 
+        {
+        throw new Error('OTP not found in email body');
         }
       });
 
-      // Log user details for reference
+    // Log user details for reference
       cy.log('Registered User Details:');
       cy.log(`First Name: ${firstName}`);
       cy.log(`Last Name: ${lastName}`);
@@ -124,5 +133,3 @@ describe('Register and Verify OTP with MailSlurp', () => {
     });
   });
 });
-
-
